@@ -1,1 +1,49 @@
 /bin/ffmpeg -video_size 830x1100 -framerate 30 -f x11grab -i :0.0+2400,80 -c:v h264_qsv test.mp4
+
+2022-09-02
+  levels
+    explicit
+      objects are sets of props in position
+      morphisms are animations of these props
+
+2022-09-04
+  characterize prop selection
+    in terms of iteration index and simultaneous index
+    use per-cycle prop indices
+    per-cycle prop index = iteration index + simultaneous index
+
+  SVG animate!
+
+  the objects can't have the props positions at the current time
+  because then it would be impossible to define a functor from the siteswap category
+  but they could be a multiset of positions at relative times
+
+  layers
+    animation
+      objects are (products of) prop positions at relative times
+      morphisms are passage of time plus animation of the props
+        sequence of (relative) time of animation start plus animation
+        then extra time passage
+
+      optimized for rendering
+    low
+
+  segments are categories
+    they should all be nearly symmetric monoidal
+      nearly because morphisms must be of equal length
+    and nearly skeletal
+      because the core cannot contain any throws
+  loops are the total space of endomorphisms
+    these can have some optimizations
+
+2022-09-05
+  how can points be shared between throws?
+
+  animation segments
+    full functor to Bℝ≥0 with a section `wait₀`
+    (nearly) symmetric monoidal category
+      nearly strict
+    object generators are positions and relative times
+    wait : Bℝ≥0 → Cat/Bℝ≥0
+    wait(*) = Anim
+    wait(t)(time, pos) = (time + t, pos)
