@@ -1,0 +1,191 @@
+<!doctype html>
+<style>
+#siteswap-invalid {
+	color: red;
+	margin-left: 1em;
+}
+</style>
+<script>
+	const distinctColors = [
+		'#FFB300',
+    '#803E75',
+    '#FF6800',
+    '#A6BDD7',
+    '#C10020',
+    '#CEA262',
+    '#817066',
+    '#007D34',
+    '#F6768E',
+    '#00538A',
+    '#FF7A5C',
+    '#53377A',
+    '#FF8E00',
+    '#B32851',
+    '#F4C800',
+    '#7F180D',
+    '#93AA00',
+    '#593315',
+    '#F13A13',
+    '#232C16',
+	]
+	const baseHeight = 40
+	const beatWidth = 40
+	window.addEventListener('load', () => {
+		const Esiteswap = document.getElementById('siteswap')
+		const EsiteswapError = document.getElementById('siteswap-error')
+		const Espacing = document.getElementById('spacing')
+		const Espread = document.getElementById('spread')
+		const Ecolor = document.getElementById('color-enable')
+		const Elabels = document.getElementById('labels-enable')
+		const Evisualization = document.getElementById('visualization')
+
+		Esiteswap.addEventListener('beforeinput', (e) => {
+			if(/[^0-9a-zA-Z]/.test(e.data))
+				e.preventDefault()
+		})
+		function update() {
+			const siteswap = Array.from(Esiteswap.value, (c) => {
+				c = c.charCodeAt(0)
+				if(48 <= c && c <= 57) {
+					return c - 48
+				} else if(97 <= c && c <= 122) {
+					return c - 97 + 10
+				} else {
+					throw new Error('bad time: ' + c)
+				}
+			})
+			console.log(siteswap)
+
+			const remainingColors = distinctColors.slice()
+			const colors = siteswap.map(() => {
+				const i = Math.floor(Math.random() * remainingColors.length)
+				const color = remainingColors[i]
+				remainingColors.splice(i, 1)
+				return color
+			})
+			console.log(colors)
+
+			const maxThrow = siteswap.reduce((acc, throw_) => Math.max(acc, throw_), 0)
+
+			while(Evisualization.firstChild) {
+				Evisualization.removeChild(Evisualization.firstChild)
+			}
+			Evisualization.setAttribute('width', siteswap.length * (beatWidth + Espacing.valueAsNumber) - Espacing.valueAsNumber)
+			Evisualization.setAttribute('height', baseHeight + 2 * maxThrow * Espread.valueAsNumber)
+			const middleY = baseHeight/2 + maxThrow * Espread.valueAsNumber
+			const elements = []
+			siteswap.forEach((throw_, i) => {
+				let start = i
+				let duration = 0
+				while(duration < throw_) {
+					const trapE = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
+					const end = Math.min(start + throw_ - duration, siteswap.length)
+					const width = end - start
+					trapE.setAttribute('points', [
+						[
+							start * (beatWidth + Espacing.valueAsNumber),
+							middleY - baseHeight/2 - Espread.valueAsNumber * duration
+						],
+						[
+							end * (beatWidth + Espacing.valueAsNumber) - Espacing.valueAsNumber,
+							middleY - baseHeight/2 - Espread.valueAsNumber * (duration + width)
+						],
+						[
+							end * (beatWidth + Espacing.valueAsNumber) - Espacing.valueAsNumber,
+							middleY + baseHeight/2 + Espread.valueAsNumber * (duration + width)
+						],
+						[
+							start * (beatWidth + Espacing.valueAsNumber),
+							middleY + baseHeight/2 + Espread.valueAsNumber * duration
+						],
+					].map(point => point.join(',')).join(' '))
+					if(Ecolor.checked) {
+						trapE.setAttribute('fill', colors[i])
+						trapE.setAttribute('stroke', 'black')
+					} else {
+						trapE.setAttribute('stroke', 'white')
+					}
+					elements.push({ i, duration, el: trapE })
+
+					duration += width
+					start = 0
+				}
+
+				if(Elabels.checked) {
+					const textE = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+					textE.setAttribute('x', i * (beatWidth + Espacing.valueAsNumber) + beatWidth/2)
+					textE.setAttribute('y', middleY)
+					textE.setAttribute('text-anchor', 'middle')
+					textE.setAttribute('dominant-baseline', 'middle')
+					textE.textContent = Esiteswap.value[i]
+					if(Ecolor.checked) {
+						textE.setAttribute('fill', 'white')
+						textE.setAttribute('stroke', 'black')
+					} else {
+						textE.setAttribute('fill', 'white')
+					}
+					textE.setAttribute('font-size', '16pt')
+					textE.setAttribute('font-weight', 'bold')
+					textE.setAttribute('font-family', 'monospace')
+					elements.push({ i, duration: -1, el: textE })
+				}
+			})
+			elements.sort((a, b) => {
+				let cmp
+
+				cmp = b.duration - a.duration
+				if(cmp != 0) return cmp
+
+				cmp = a.i - b.i
+				if(cmp != 0) return cmp
+
+				return 0
+			})
+			for(const el of elements)
+				Evisualization.appendChild(el.el)
+
+			EsiteswapError.style.setProperty('display', 'none')
+		}
+		Esiteswap.addEventListener('input', () => update())
+		Espacing.addEventListener('input', () => update())
+		Espread.addEventListener('input', () => update())
+		Ecolor.addEventListener('input', () => update())
+		Elabels.addEventListener('input', () => update())
+		update()
+	})
+</script>
+
+<p>
+	Epilepsy warning: when colors are enabled rapidly changing parameters will cause the colors to flash.
+</p>
+
+<div>
+	<label for=siteswap>Siteswap: </label>
+	<input type=text inputmode=numeric id=siteswap>
+	<span id=siteswap-error></span>
+</div>
+
+<div>
+	<label for=spacing>Extra horizontal spacing: </label>
+	<input type=number id=spacing min=0 value=0>
+</div>
+
+<div>
+	<label for=spread>Spread rate per beat: </label>
+	<input type=number id=spread min=0 value=5>
+</div>
+
+<div>
+	<input type=checkbox id=color-enable checked>
+	<label for=color-enable>Color bars</label>
+
+	|
+
+	<input type=checkbox id=labels-enable>
+	<label for=labels-enable>Label throws</label>
+</div>
+
+<div style="margin-top: 1em">
+	<svg id=visualization>
+	</svg>
+</div>

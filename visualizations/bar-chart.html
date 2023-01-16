@@ -1,0 +1,189 @@
+<!doctype html>
+<style>
+#siteswap-invalid {
+	color: red;
+	margin-left: 1em;
+}
+</style>
+<script>
+	const distinctColors = [
+		'#FFB300',
+    '#803E75',
+    '#FF6800',
+    '#A6BDD7',
+    '#C10020',
+    '#CEA262',
+    '#817066',
+    '#007D34',
+    '#F6768E',
+    '#00538A',
+    '#FF7A5C',
+    '#53377A',
+    '#FF8E00',
+    '#B32851',
+    '#F4C800',
+    '#7F180D',
+    '#93AA00',
+    '#593315',
+    '#F13A13',
+    '#232C16',
+	]
+	const beatHeight = 40
+	const beatWidth = 40
+	window.addEventListener('load', () => {
+		const Esiteswap = document.getElementById('siteswap')
+		const EsiteswapError = document.getElementById('siteswap-error')
+		const Espacing = document.getElementById('spacing')
+		const Ecolor = document.getElementById('color-enable')
+		const Eforward = document.getElementById('forward-enable')
+		const Einverse = document.getElementById('inverse-enable')
+		const Elabels = document.getElementById('labels-enable')
+		const Evisualization = document.getElementById('visualization')
+
+		Esiteswap.addEventListener('beforeinput', (e) => {
+			if(/[^0-9a-zA-Z]/.test(e.data))
+				e.preventDefault()
+		})
+		function update() {
+			const siteswap = Array.from(Esiteswap.value, (c) => {
+				c = c.charCodeAt(0)
+				if(48 <= c && c <= 57) {
+					return c - 48
+				} else if(97 <= c && c <= 122) {
+					return c - 97 + 10
+				} else {
+					throw new Error('bad time: ' + c)
+				}
+			})
+			console.log(siteswap)
+
+			const remainingColors = distinctColors.slice()
+			const colors = siteswap.map(() => {
+				const i = Math.floor(Math.random() * remainingColors.length)
+				const color = remainingColors[i]
+				remainingColors.splice(i, 1)
+				return color
+			})
+			console.log(colors)
+
+			let maxThrow = 0
+
+			const inverse = siteswap.map(() => null)
+			for(let i = 0; i < siteswap.length; i++) {
+				const throw_ = siteswap[i]
+				const j = (i + throw_) % siteswap.length
+				if(inverse[j] !== null) {
+					EsiteswapError.textContent = 'Multiple throws landing on beat ' + j
+					EsiteswapError.style.removeProperty('display')
+					return
+				}
+				inverse[j] = i
+				maxThrow = Math.max(maxThrow, throw_)
+			}
+
+			while(Evisualization.firstChild) {
+				Evisualization.removeChild(Evisualization.firstChild)
+			}
+			Evisualization.setAttribute('width', siteswap.length * (beatWidth + Espacing.valueAsNumber))
+			Evisualization.setAttribute('height', 2 * maxThrow * beatHeight)
+			for(let i = 0; i < siteswap.length; i++) {
+				if(Eforward.checked) {
+					const throw_ = siteswap[i]
+					const rectE = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+					rectE.setAttribute('x', i * (beatWidth + Espacing.valueAsNumber))
+					rectE.setAttribute('y', (maxThrow - throw_) * beatHeight)
+					rectE.setAttribute('width', beatWidth)
+					rectE.setAttribute('height', throw_ * beatHeight)
+					if(Ecolor.checked)
+						rectE.setAttribute('fill', colors[i])
+					Evisualization.appendChild(rectE)
+				}
+
+				if(Einverse.checked) {
+					const j = inverse[i]
+					const throw_ = siteswap[j]
+					const rectE = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+					rectE.setAttribute('x', i * (beatWidth + Espacing.valueAsNumber))
+					rectE.setAttribute('y', maxThrow * beatHeight)
+					rectE.setAttribute('width', beatWidth)
+					rectE.setAttribute('height', throw_ * beatHeight)
+					if(Ecolor.checked)
+						rectE.setAttribute('fill', colors[j])
+					Evisualization.appendChild(rectE)
+				}
+
+				if(Elabels.checked) {
+					const textE = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+					textE.setAttribute('x', i * (beatWidth + Espacing.valueAsNumber) + beatWidth/2)
+					textE.setAttribute('y', (maxThrow - 0.5) * beatHeight)
+					textE.setAttribute('text-anchor', 'middle')
+					textE.setAttribute('dominant-baseline', 'middle')
+					textE.textContent = Esiteswap.value[i]
+					if(Ecolor.checked) {
+						textE.setAttribute('fill', 'black')
+						textE.setAttribute('stroke', 'white')
+					} else {
+						textE.setAttribute('fill', 'white')
+					}
+					textE.setAttribute('font-size', '16pt')
+					textE.setAttribute('font-weight', 'bold')
+					textE.setAttribute('font-family', 'monospace')
+					Evisualization.appendChild(textE)
+				}
+			}
+
+			const lineE = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+			lineE.setAttribute('x1', 0)
+			lineE.setAttribute('x2', siteswap.length * (beatWidth + Espacing.valueAsNumber) - Espacing.valueAsNumber)
+			lineE.setAttribute('y1', maxThrow * beatHeight)
+			lineE.setAttribute('y2', maxThrow * beatHeight)
+			lineE.setAttribute('stroke', 'white')
+			Evisualization.appendChild(lineE)
+
+			EsiteswapError.style.setProperty('display', 'none')
+		}
+		Esiteswap.addEventListener('input', () => update())
+		Espacing.addEventListener('input', () => update())
+		Ecolor.addEventListener('input', () => update())
+		Eforward.addEventListener('input', () => update())
+		Einverse.addEventListener('input', () => update())
+		Elabels.addEventListener('input', () => update())
+		update()
+	})
+</script>
+
+<div>
+	<label for=siteswap>Siteswap: </label>
+	<input type=text inputmode=numeric id=siteswap>
+	<span id=siteswap-error></span>
+</div>
+
+<div>
+	<label for=spacing>Extra vertical spacing: </label>
+	<input type=number id=spacing min=0 value=0>
+</div>
+
+<div>
+	<input type=checkbox id=color-enable checked>
+	<label for=color-enable>Color bars</label>
+
+	|
+
+	<input type=checkbox id=forward-enable checked>
+	<label for=forward-enable>Display forward</label>
+
+	|
+
+	<input type=checkbox id=inverse-enable>
+	<label for=inverse-enable>Display inverse</label>
+
+	|
+
+	<input type=checkbox id=labels-enable>
+	<label for=labels-enable>Label throws</label>
+</div>
+
+<div style="margin-top: 1em">
+	<svg id=visualization>
+	</svg>
+</div>
