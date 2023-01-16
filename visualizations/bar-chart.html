@@ -34,10 +34,12 @@
 		const Esiteswap = document.getElementById('siteswap')
 		const EsiteswapError = document.getElementById('siteswap-error')
 		const Espacing = document.getElementById('spacing')
+		const Eiters = document.getElementById('iterations')
 		const Ecolor = document.getElementById('color-enable')
 		const Eforward = document.getElementById('forward-enable')
 		const Einverse = document.getElementById('inverse-enable')
 		const Elabels = document.getElementById('labels-enable')
+		const EcatchLabels = document.getElementById('catch-labels-enable')
 		const Evisualization = document.getElementById('visualization')
 
 		Esiteswap.addEventListener('beforeinput', (e) => {
@@ -55,7 +57,7 @@
 					throw new Error('bad time: ' + c)
 				}
 			})
-			console.log(siteswap)
+			// console.log(siteswap)
 
 			const remainingColors = distinctColors.slice()
 			const colors = siteswap.map(() => {
@@ -64,7 +66,7 @@
 				remainingColors.splice(i, 1)
 				return color
 			})
-			console.log(colors)
+			// console.log(colors)
 
 			let maxThrow = 0
 
@@ -84,57 +86,78 @@
 			while(Evisualization.firstChild) {
 				Evisualization.removeChild(Evisualization.firstChild)
 			}
-			Evisualization.setAttribute('width', siteswap.length * (beatWidth + Espacing.valueAsNumber))
+			Evisualization.setAttribute('width', siteswap.length * Eiters.valueAsNumber * (beatWidth + Espacing.valueAsNumber))
 			Evisualization.setAttribute('height', 2 * maxThrow * beatHeight)
-			for(let i = 0; i < siteswap.length; i++) {
-				if(Eforward.checked) {
-					const throw_ = siteswap[i]
-					const rectE = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-					rectE.setAttribute('x', i * (beatWidth + Espacing.valueAsNumber))
-					rectE.setAttribute('y', (maxThrow - throw_) * beatHeight)
-					rectE.setAttribute('width', beatWidth)
-					rectE.setAttribute('height', throw_ * beatHeight)
-					if(Ecolor.checked)
-						rectE.setAttribute('fill', colors[i])
-					Evisualization.appendChild(rectE)
-				}
-
-				if(Einverse.checked) {
-					const j = inverse[i]
-					const throw_ = siteswap[j]
-					const rectE = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-					rectE.setAttribute('x', i * (beatWidth + Espacing.valueAsNumber))
-					rectE.setAttribute('y', maxThrow * beatHeight)
-					rectE.setAttribute('width', beatWidth)
-					rectE.setAttribute('height', throw_ * beatHeight)
-					if(Ecolor.checked)
-						rectE.setAttribute('fill', colors[j])
-					Evisualization.appendChild(rectE)
-				}
-
-				if(Elabels.checked) {
-					const textE = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-					textE.setAttribute('x', i * (beatWidth + Espacing.valueAsNumber) + beatWidth/2)
-					textE.setAttribute('y', (maxThrow - 0.5) * beatHeight)
-					textE.setAttribute('text-anchor', 'middle')
-					textE.setAttribute('dominant-baseline', 'middle')
-					textE.textContent = Esiteswap.value[i]
-					if(Ecolor.checked) {
-						textE.setAttribute('fill', 'black')
-						textE.setAttribute('stroke', 'white')
-					} else {
-						textE.setAttribute('fill', 'white')
+			for(let iter = 0; iter < Eiters.valueAsNumber; iter++) {
+				for(let i = 0; i < siteswap.length; i++) {
+					if(Eforward.checked) {
+						const throw_ = siteswap[i]
+						const rectE = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+						rectE.setAttribute('x', (i + iter * siteswap.length) * (beatWidth + Espacing.valueAsNumber))
+						rectE.setAttribute('y', (maxThrow - throw_) * beatHeight)
+						rectE.setAttribute('width', beatWidth)
+						rectE.setAttribute('height', throw_ * beatHeight)
+						if(Ecolor.checked)
+							rectE.setAttribute('fill', colors[i])
+						Evisualization.appendChild(rectE)
 					}
-					textE.setAttribute('font-size', '16pt')
-					textE.setAttribute('font-weight', 'bold')
-					textE.setAttribute('font-family', 'monospace')
-					Evisualization.appendChild(textE)
+
+					if(Einverse.checked) {
+						const j = inverse[i]
+						const throw_ = siteswap[j]
+						const rectE = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+						rectE.setAttribute('x', (i + iter * siteswap.length) * (beatWidth + Espacing.valueAsNumber))
+						rectE.setAttribute('y', maxThrow * beatHeight)
+						rectE.setAttribute('width', beatWidth)
+						rectE.setAttribute('height', throw_ * beatHeight)
+						if(Ecolor.checked)
+							rectE.setAttribute('fill', colors[j])
+						Evisualization.appendChild(rectE)
+					}
+
+					if(Elabels.checked) {
+						const textE = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+						textE.setAttribute('x', (i + iter * siteswap.length) * (beatWidth + Espacing.valueAsNumber) + beatWidth/2)
+						textE.setAttribute('y', (maxThrow - 0.5) * beatHeight)
+						textE.setAttribute('text-anchor', 'middle')
+						textE.setAttribute('dominant-baseline', 'middle')
+						textE.textContent = Esiteswap.value[i]
+						if(Ecolor.checked) {
+							textE.setAttribute('fill', 'white')
+							textE.setAttribute('stroke', 'black')
+						} else {
+							textE.setAttribute('fill', 'white')
+						}
+						textE.setAttribute('font-size', '16pt')
+						textE.setAttribute('font-weight', 'bold')
+						textE.setAttribute('font-family', 'monospace')
+						Evisualization.appendChild(textE)
+					}
+
+					if(EcatchLabels.checked) {
+						const textE = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+						textE.setAttribute('x', (i + iter * siteswap.length) * (beatWidth + Espacing.valueAsNumber) + beatWidth/2)
+						textE.setAttribute('y', (maxThrow + 0.5) * beatHeight)
+						textE.setAttribute('text-anchor', 'middle')
+						textE.setAttribute('dominant-baseline', 'middle')
+						textE.textContent = Esiteswap.value[inverse[i]]
+						if(Ecolor.checked) {
+							textE.setAttribute('fill', 'white')
+							textE.setAttribute('stroke', 'black')
+						} else {
+							textE.setAttribute('fill', 'white')
+						}
+						textE.setAttribute('font-size', '16pt')
+						textE.setAttribute('font-weight', 'bold')
+						textE.setAttribute('font-family', 'monospace')
+						Evisualization.appendChild(textE)
+					}
 				}
 			}
 
 			const lineE = document.createElementNS('http://www.w3.org/2000/svg', 'line')
 			lineE.setAttribute('x1', 0)
-			lineE.setAttribute('x2', siteswap.length * (beatWidth + Espacing.valueAsNumber) - Espacing.valueAsNumber)
+			lineE.setAttribute('x2', siteswap.length * Eiters.valueAsNumber * (beatWidth + Espacing.valueAsNumber) - Espacing.valueAsNumber)
 			lineE.setAttribute('y1', maxThrow * beatHeight)
 			lineE.setAttribute('y2', maxThrow * beatHeight)
 			lineE.setAttribute('stroke', 'white')
@@ -144,10 +167,12 @@
 		}
 		Esiteswap.addEventListener('input', () => update())
 		Espacing.addEventListener('input', () => update())
+		Eiters.addEventListener('input', () => update())
 		Ecolor.addEventListener('input', () => update())
 		Eforward.addEventListener('input', () => update())
 		Einverse.addEventListener('input', () => update())
 		Elabels.addEventListener('input', () => update())
+		EcatchLabels.addEventListener('input', () => update())
 		update()
 	})
 </script>
@@ -175,8 +200,13 @@
 </div>
 
 <div>
+	<label for=iterations>Iterations: </label>
+	<input type=number id=iterations min=1 value=1>
+</div>
+
+<div>
 	<input type=checkbox id=color-enable checked>
-	<label for=color-enable>Color bars</label>
+	<label for=color-enable>Enable color</label>
 
 	|
 
@@ -192,6 +222,11 @@
 
 	<input type=checkbox id=labels-enable>
 	<label for=labels-enable>Label throws</label>
+
+	|
+
+	<input type=checkbox id=catch-labels-enable>
+	<label for=catch-labels-enable>Label catches</label>
 </div>
 
 <div style="margin-top: 1em">

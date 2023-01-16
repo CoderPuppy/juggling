@@ -35,6 +35,7 @@
 		const EsiteswapError = document.getElementById('siteswap-error')
 		const Espacing = document.getElementById('spacing')
 		const Espread = document.getElementById('spread')
+		const Eiters = document.getElementById('iterations')
 		const Ecolor = document.getElementById('color-enable')
 		const Elabels = document.getElementById('labels-enable')
 		const Evisualization = document.getElementById('visualization')
@@ -54,7 +55,7 @@
 					throw new Error('bad time: ' + c)
 				}
 			})
-			console.log(siteswap)
+			// console.log(siteswap)
 
 			const remainingColors = distinctColors.slice()
 			const colors = siteswap.map(() => {
@@ -63,73 +64,75 @@
 				remainingColors.splice(i, 1)
 				return color
 			})
-			console.log(colors)
+			// console.log(colors)
 
 			const maxThrow = siteswap.reduce((acc, throw_) => Math.max(acc, throw_), 0)
 
 			while(Evisualization.firstChild) {
 				Evisualization.removeChild(Evisualization.firstChild)
 			}
-			Evisualization.setAttribute('width', siteswap.length * (beatWidth + Espacing.valueAsNumber) - Espacing.valueAsNumber)
+			Evisualization.setAttribute('width', siteswap.length * Eiters.valueAsNumber * (beatWidth + Espacing.valueAsNumber) - Espacing.valueAsNumber)
 			Evisualization.setAttribute('height', baseHeight + 2 * maxThrow * Espread.valueAsNumber)
 			const middleY = baseHeight/2 + maxThrow * Espread.valueAsNumber
 			const elements = []
-			siteswap.forEach((throw_, i) => {
-				let start = i
-				let duration = 0
-				while(duration < throw_) {
-					const trapE = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
-					const end = Math.min(start + throw_ - duration, siteswap.length)
-					const width = end - start
-					trapE.setAttribute('points', [
-						[
-							start * (beatWidth + Espacing.valueAsNumber),
-							middleY - baseHeight/2 - Espread.valueAsNumber * duration
-						],
-						[
-							end * (beatWidth + Espacing.valueAsNumber) - Espacing.valueAsNumber,
-							middleY - baseHeight/2 - Espread.valueAsNumber * (duration + width)
-						],
-						[
-							end * (beatWidth + Espacing.valueAsNumber) - Espacing.valueAsNumber,
-							middleY + baseHeight/2 + Espread.valueAsNumber * (duration + width)
-						],
-						[
-							start * (beatWidth + Espacing.valueAsNumber),
-							middleY + baseHeight/2 + Espread.valueAsNumber * duration
-						],
-					].map(point => point.join(',')).join(' '))
-					if(Ecolor.checked) {
-						trapE.setAttribute('fill', colors[i])
-						trapE.setAttribute('stroke', 'black')
-					} else {
-						trapE.setAttribute('stroke', 'white')
-					}
-					elements.push({ i, duration, el: trapE })
+			for(let iter = 0; iter < Eiters.valueAsNumber; iter++) {
+				siteswap.forEach((throw_, i) => {
+					let start = i + iter * siteswap.length
+					let duration = 0
+					while(duration < throw_) {
+						const trapE = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
+						const end = Math.min(start + throw_ - duration, Eiters.valueAsNumber * siteswap.length)
+						const width = end - start
+						trapE.setAttribute('points', [
+							[
+								start * (beatWidth + Espacing.valueAsNumber),
+								middleY - baseHeight/2 - Espread.valueAsNumber * duration
+							],
+							[
+								end * (beatWidth + Espacing.valueAsNumber) - Espacing.valueAsNumber,
+								middleY - baseHeight/2 - Espread.valueAsNumber * (duration + width)
+							],
+							[
+								end * (beatWidth + Espacing.valueAsNumber) - Espacing.valueAsNumber,
+								middleY + baseHeight/2 + Espread.valueAsNumber * (duration + width)
+							],
+							[
+								start * (beatWidth + Espacing.valueAsNumber),
+								middleY + baseHeight/2 + Espread.valueAsNumber * duration
+							],
+						].map(point => point.join(',')).join(' '))
+						if(Ecolor.checked) {
+							trapE.setAttribute('fill', colors[i])
+							trapE.setAttribute('stroke', 'black')
+						} else {
+							trapE.setAttribute('stroke', 'white')
+						}
+						elements.push({ i: i + iter * siteswap.length, duration, el: trapE })
 
-					duration += width
-					start = 0
-				}
-
-				if(Elabels.checked) {
-					const textE = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-					textE.setAttribute('x', i * (beatWidth + Espacing.valueAsNumber) + beatWidth/2)
-					textE.setAttribute('y', middleY)
-					textE.setAttribute('text-anchor', 'middle')
-					textE.setAttribute('dominant-baseline', 'middle')
-					textE.textContent = Esiteswap.value[i]
-					if(Ecolor.checked) {
-						textE.setAttribute('fill', 'white')
-						textE.setAttribute('stroke', 'black')
-					} else {
-						textE.setAttribute('fill', 'white')
+						duration += width
+						start = 0
 					}
-					textE.setAttribute('font-size', '16pt')
-					textE.setAttribute('font-weight', 'bold')
-					textE.setAttribute('font-family', 'monospace')
-					elements.push({ i, duration: -1, el: textE })
-				}
-			})
+
+					if(Elabels.checked) {
+						const textE = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+						textE.setAttribute('x', (i + iter * siteswap.length) * (beatWidth + Espacing.valueAsNumber) + beatWidth/2)
+						textE.setAttribute('y', middleY)
+						textE.setAttribute('text-anchor', 'middle')
+						textE.setAttribute('dominant-baseline', 'middle')
+						textE.textContent = Esiteswap.value[i]
+						if(Ecolor.checked) {
+							textE.setAttribute('fill', 'white')
+							textE.setAttribute('stroke', 'black')
+						} else {
+							textE.setAttribute('fill', 'white')
+						}
+						textE.setAttribute('font-size', '16pt')
+						textE.setAttribute('font-weight', 'bold')
+						textE.setAttribute('font-family', 'monospace')
+						elements.push({ i: i + iter * siteswap.length, duration: -1, el: textE })
+					}
+				})
+			}
 			elements.sort((a, b) => {
 				let cmp
 
@@ -149,6 +152,7 @@
 		Esiteswap.addEventListener('input', () => update())
 		Espacing.addEventListener('input', () => update())
 		Espread.addEventListener('input', () => update())
+		Eiters.addEventListener('input', () => update())
 		Ecolor.addEventListener('input', () => update())
 		Elabels.addEventListener('input', () => update())
 		update()
@@ -178,13 +182,18 @@
 </div>
 
 <div>
+	<label for=iterations>Iterations: </label>
+	<input type=number id=iterations min=1 value=1>
+</div>
+
+<div>
 	<label for=spread>Spread rate per beat: </label>
 	<input type=number id=spread min=0 value=5>
 </div>
 
 <div>
 	<input type=checkbox id=color-enable checked>
-	<label for=color-enable>Color bars</label>
+	<label for=color-enable>Enable color</label>
 
 	|
 
