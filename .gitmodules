@@ -1,0 +1,3 @@
+[submodule "animators/juggling-visualizer"]
+	path = animators/juggling-visualizer
+	url = git@github.com:ShayneWinn/juggling-visualizer.git
