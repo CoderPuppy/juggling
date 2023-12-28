@@ -1,13 +1,17 @@
 {-# OPTIONS_GHC -Wno-tabs #-}
 {-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE ImportQualifiedPost #-}
+{-# LANGUAGE BlockArguments #-}
 
 module SymmetricSync where
 
+import Control.Arrow
 import Control.Monad
 import Data.Bits
 import Data.Foldable
 import Data.Tuple
 import Debug.Trace
+import Data.Set qualified as S
 
 -- generating symmetric synchronous patterns
 --
@@ -41,9 +45,31 @@ pp ((l, lx):(r, rx):ss) = mconcat
 	, ",", show (2 * r), if rx then "x" else ""
 	, ")", pp ss ]
 
+rotateOne ((l, lx):(r, rx):ss) = ss <> [(r, rx), (l, lx)]
+swapHands [] = []
+swapHands ((l, lx):(r, rx):ss) = (r, rx):(l, lx):swapHands ss
+
+removeDuplicates patterns = foldl' go (S.fromList patterns) patterns
+	where
+		go pats ss = S.insert ss $ S.difference pats rotations
+			where rotations = S.fromList $ scanl (const . rotateOne) ss ss
+
 test = join $ traverse (traverse (fmap swap . traverse (addHeight minHeight maxHeight period) . swap)) $ generate period
 	where
-		period = 2 -- (_,_)(_,_)
+		period = 3 -- (_,_)(_,_)
 		minHeight = 1 -- 2
-		maxHeight = 6 -- c
+		maxHeight = 5 -- a
 -- traverse_ putStrLn $ fmap pp $ filter (\ss -> all (\(h, _) -> h > 0 && h <= 4) ss && sum (fmap fst ss) == 2 * 5) $ fmap (fmap $ first \h -> if h == 0 then 4 else h) $ generate 2
+
+test2 =
+	removeDuplicates $
+	filter (all \(h, _) -> h >= minHeight && h <= maxHeight) $
+	filter ((== period * numBalls) . sum . fmap fst) $
+	filter (not . any \(h, x) -> h == 1 && not x) $
+	fmap (fmap $ first \h -> if h == 0 then maxHeight else h) $
+	generate period
+	where
+		period = 3 -- (_,_)(_,_)
+		minHeight = 1 -- 2
+		maxHeight = 5 -- a
+		numBalls = 4
