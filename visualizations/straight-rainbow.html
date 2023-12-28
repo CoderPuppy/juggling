@@ -1,0 +1,286 @@
+<!doctype html>
+<script>
+	const distinctColors = [
+		{
+			up: 'oklch(81.79% 0.1705233575429752 77.9481021312874 / 0.8)',
+			down: 'oklch(81.79% 0.1705233575429752 77.9481021312874)',
+			stroke: 'oklch(30% 0.1705233575429752 77.9481021312874)',
+		},
+    {
+			up: 'oklch(46.82% 0.116 333.91 / 0.8)',
+			down: 'oklch(46.82% 0.116 333.91)',
+			stroke: 'oklch(30% 0.116 333.91)',
+		},
+    {
+			up: 'oklch(69.83% 0.20272280794404893 44.120408319060445 / 0.8)',
+			down: 'oklch(69.83% 0.20272280794404893 44.120408319060445)',
+			stroke: 'oklch(30% 0.20272280794404893 44.120408319060445)',
+		},
+    {
+			up: 'oklch(78.96% 0.045 251.58 / 0.8)',
+			down: 'oklch(78.96% 0.045 251.58)',
+			stroke: 'oklch(30% 0.045 251.58)',
+		},
+		{
+			up: 'oklch(51.1% 0.20696456863562981 24.577275061149383 / 0.8)',
+			down: 'oklch(51.1% 0.20696456863562981 24.577275061149383)',
+			stroke: 'oklch(30% 0.20696456863562981 24.577275061149383)',
+		},
+		{
+			up: 'oklch(73.91% 0.097 75.66 / 0.8)',
+			down: 'oklch(73.91% 0.097 75.66)',
+			stroke: 'oklch(30% 0.097 75.66)',
+		},
+		{
+			up: 'oklch(55.82% 0.026 52.4 / 0.8)',
+			down: 'oklch(55.82% 0.026 52.4)',
+			stroke: 'oklch(30% 0.026 52.4)',
+		},
+		{
+			up: 'oklch(51.49% 0.145 149.08 / 0.8)',
+			down: 'oklch(51.49% 0.145 149.08)',
+			stroke: 'oklch(30% 0.145 149.08)',
+		},
+		{
+			up: 'oklch(72.13% 0.158 10.14 / 0.8)',
+			down: 'oklch(72.13% 0.158 10.14)',
+			stroke: 'oklch(30% 0.158 10.14)',
+		},
+		{
+			up: 'oklch(43.04% 0.113 247.1 / 0.8)',
+			down: 'oklch(43.04% 0.113 247.1)',
+			stroke: 'oklch(30% 0.113 247.1)',
+		},
+		{
+			up: 'oklch(72.94% 0.16871882383801748 34.05418592381977 / 0.8)',
+			down: 'oklch(72.94% 0.16871882383801748 34.05418592381977)',
+			stroke: 'oklch(30% 0.16871882383801748 34.05418592381977)',
+		},
+		{
+			up: 'oklch(40.25% 0.111 300.82 / 0.8)',
+			down: 'oklch(40.25% 0.111 300.82)',
+			stroke: 'oklch(30% 0.111 300.82)',
+		},
+		{
+			up: 'oklch(75.38% 0.178 59.21 / 0.8)',
+			down: 'oklch(75.38% 0.178 59.21)',
+			stroke: 'oklch(30% 0.178 59.21)',
+		},
+		{
+			up: 'oklch(51.16% 0.175 9.07 / 0.8)',
+			down: 'oklch(51.16% 0.175 9.07)',
+			stroke: 'oklch(30% 0.175 9.07)',
+		},
+		{
+			up: 'oklch(84.65% 0.173 92.74 / 0.8)',
+			down: 'oklch(84.65% 0.173 92.74)',
+			stroke: 'oklch(30% 0.173 92.74)',
+		},
+		{
+			up: 'oklch(38.95% 0.139 30.34 / 0.8)',
+			down: 'oklch(38.95% 0.139 30.34)',
+			stroke: 'oklch(30% 0.139 30.34)',
+		},
+		{
+			up: 'oklch(69.56% 0.163 118.95 / 0.8)',
+			down: 'oklch(69.56% 0.163 118.95)',
+			stroke: 'oklch(30% 0.163 118.95)',
+		},
+		{
+			up: 'oklch(36.22% 0.07 56.29 / 0.8)',
+			down: 'oklch(36.22% 0.07 56.29)',
+			stroke: 'oklch(30% 0.07 56.29)',
+		},
+		{
+			up: 'oklch(62.74% 0.223 32.87 / 0.8)',
+			down: 'oklch(62.74% 0.223 32.87)',
+			stroke: 'oklch(30% 0.223 32.87)',
+		},
+		{
+			up: 'oklch(27.79% 0.04 126.97 / 0.8)',
+			down: 'oklch(27.79% 0.04 126.97)',
+			stroke: 'oklch(30% 0.04 126.97)',
+		},
+	]
+	const basicColor = {
+		up: 'hsla(0deg, 0%, 30%, 0.8)',
+		down: 'hsla(0deg, 100%, 50%, 1)',
+		stroke: 'black',
+	}
+
+	window.addEventListener('load', () => {
+		const Esiteswap = document.getElementById('siteswap')
+		const EsiteswapError = document.getElementById('siteswap-error')
+		const Eiters = document.getElementById('iterations')
+		const EbeatStride = document.getElementById('beat-stride')
+		const EbeatSpacing = document.getElementById('beat-spacing')
+		const Eslope = document.getElementById('slope')
+		const EstrokeWidth = document.getElementById('stroke-width')
+		const Ecolor = document.getElementById('color-enable')
+		const Evisualization = document.getElementById('visualization')
+
+		Esiteswap.addEventListener('beforeinput', (e) => {
+			if(/[^0-9a-zA-Z]/.test(e.data))
+				e.preventDefault()
+		})
+
+		function update() {
+			const siteswap = Array.from(Esiteswap.value, (c) => {
+				c = c.charCodeAt(0)
+				if(48 <= c && c <= 57)
+					return c - 48
+				else if(97 <= c && c <= 122)
+					return c - 97 + 10
+				else
+					throw new Error(`bad time: ${c}`)
+			})
+			// console.log(siteswap)
+
+			const remainingColors = distinctColors.slice()
+			const colors = siteswap.map(() => {
+				if(remainingColors.length) {
+					const i = Math.floor(Math.random() * remainingColors.length)
+					const color = remainingColors[i]
+					remainingColors.splice(i, 1)
+					return color
+				} else {
+					return basicColor
+				}
+			})
+
+			const maxThrow = siteswap.reduce((acc, throw_) => Math.max(acc, throw_), 0)
+
+			const doColor = Ecolor.checked
+			const iters = Eiters.valueAsNumber
+			const beatStride = EbeatStride.valueAsNumber
+			const beatSpacing = EbeatSpacing.valueAsNumber
+			const slope = Eslope.valueAsNumber
+			const strokeWidth = EstrokeWidth.valueAsNumber
+
+			const beatWidth = beatStride - beatSpacing
+			const width = siteswap.length * iters * beatStride
+			const baseline = (beatWidth + maxThrow/2 * beatStride) * slope + strokeWidth
+			const height = baseline + strokeWidth
+
+			while(Evisualization.firstChild)
+				Evisualization.removeChild(Evisualization.firstChild)
+			Evisualization.setAttribute('width', width)
+			Evisualization.setAttribute('height', height)
+
+			const elements = []
+			for(let iter = 0; iter < Eiters.valueAsNumber; iter++) {
+				siteswap.forEach((throw_, i) => {
+					const duration = throw_ * beatStride
+					let start = (i + iter * siteswap.length) * beatStride
+					let offset = 0
+					let end
+					while(offset < duration/2) {
+						end = Math.min(start + duration/2 - offset, width)
+						const upE = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
+						upE.setAttribute('points', [
+							[ start, baseline - (beatWidth + offset              ) * slope],
+							[ end,   baseline - (beatWidth + offset + end - start) * slope],
+							[ end,   baseline - (            offset + end - start) * slope],
+							[ start, baseline - (            offset              ) * slope],
+						].map(point => point.join(',')).join(' '))
+						if(doColor) {
+							upE.setAttribute('fill', colors[i].up)
+							upE.setAttribute('stroke', colors[i].stroke)
+						} else {
+							upE.setAttribute('fill', basicColor.up)
+							upE.setAttribute('stroke', basicColor.stroke)
+						}
+						upE.setAttribute('stroke-width', strokeWidth)
+
+						elements.push({ i: i + iter * siteswap.length, offset, el: upE })
+
+						offset += end - start
+						start = 0
+					}
+
+					start = end
+					while(offset < duration) {
+						const end = Math.min(start + duration - offset, width)
+						const downE = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
+						downE.setAttribute('points', [
+							[ start, baseline - (beatWidth + duration - offset              ) * slope ],
+							[ end,   baseline - (beatWidth + duration - offset - end + start) * slope ],
+							[ end,   baseline - (            duration - offset - end + start) * slope ],
+							[ start, baseline - (            duration - offset              ) * slope ],
+						].map(point => point.join(',')).join(' '))
+						if(doColor) {
+							downE.setAttribute('fill', colors[i].down)
+							downE.setAttribute('stroke', colors[i].stroke)
+						} else {
+							downE.setAttribute('fill', basicColor.down)
+							downE.setAttribute('stroke', basicColor.stroke)
+						}
+						downE.setAttribute('stroke-width', strokeWidth) // TODO
+
+						elements.push({ i: i + iter * siteswap.length, offset, el: downE })
+
+						offset += end - start
+						start = 0
+					}
+				})
+			}
+
+			elements.sort((a, b) => {
+				let cmp
+
+				cmp = b.offset - a.offset
+				if(cmp != 0) return cmp
+
+				cmp = a.i - b.i
+				if(cmp != 0) return cmp
+
+				return 0
+			})
+			for(const el of elements)
+				Evisualization.appendChild(el.el)
+		}
+
+		;[Esiteswap, Eiters, EbeatStride, EbeatSpacing, Eslope, EstrokeWidth, Ecolor]
+			.forEach((e) => e.addEventListener('input', () => update()))
+	})
+</script>
+
+<h1>Siteswap Visualization: Straight Rainbow</h1>
+
+<div>
+	<label for=siteswap>Siteswap: </label>
+	<input type=text inputmode=numeric id=siteswap>
+	<span id=siteswap-error></span>
+</div>
+
+<div>
+	<label for=iterations>Iterations: </label>
+	<input type=number id=iterations min=1 value=10>
+</div>
+
+<div>
+	<label for=beat-stride>Beat stride: </label>
+	<input type=number id=beat-stride min=1 value=40>
+	&nbsp;&nbsp;
+	<label for=beat-spacing>Beat spacing: </label>
+	<input type=number id=beat-spacing min=0 value=5>
+</div>
+
+<div>
+	<label for=slope>Slope: </label>
+	<input type=number id=slope step=0.1 min=0 value=0.5>
+</div>
+
+<div>
+	<label for=stroke-width>Stroke width: </label>
+	<input type=number id=stroke-width step=0.1 min=0 value=1>
+</div>
+
+<div>
+	<input type=checkbox id=color-enable chexked>
+	<label for=color-enable>Enable color</label>
+</div>
+
+<div style="margin-top: 1em">
+	<svg id=visualization></svg>
+</div>
