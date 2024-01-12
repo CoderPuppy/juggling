@@ -5,3 +5,4 @@
 - [Bar Charts](visualizations/bar-chart.html)
 - [Pie Cylinder](visualizations/pie-cylinder.html)
 - [Trapezoids](visualizations/trapezoids.html)
+- [Straight Peaks](visualizations/straight-peaks.html)
